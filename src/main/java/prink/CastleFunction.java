@@ -86,6 +86,16 @@ public class CastleFunction<KEY, INPUT extends Tuple, OUTPUT extends Tuple> exte
     private int mu = 10;
     /** Last infoLoss values (max size = mu) */
     private final LinkedList<Float> recentInfoLoss = new LinkedList<>(Collections.nCopies(mu, 0f));
+
+    /**
+     * Starts the tau window with {@code mu} zeros. The field initializer above runs before the constructor sets
+     * {@code mu}, so without this reset the window always started with the default of 10 zeros and, for mu < 10,
+     * never shrank below 10 values.
+     */
+    private void resetRecentInfoLoss() {
+        recentInfoLoss.clear();
+        recentInfoLoss.addAll(Collections.nCopies(Math.max(mu, 1), 0f));
+    }
     /** Position of the id value inside the tuples */
     private int posTupleId = 1; // TODO maybe replace with 'context.getCurrentKey()'
     /** Position of the l diversity sensible attribute */
@@ -121,6 +131,7 @@ public class CastleFunction<KEY, INPUT extends Tuple, OUTPUT extends Tuple> exte
         this.beta = beta;
         this.zeta = zeta;
         this.mu = mu;
+        resetRecentInfoLoss();
         this.showInfoLoss = showInfoLoss;
         this.suppressStrategy = suppressStrategy;
 
@@ -135,6 +146,7 @@ public class CastleFunction<KEY, INPUT extends Tuple, OUTPUT extends Tuple> exte
         this.beta = beta;
         this.zeta = zeta;
         this.mu = mu;
+        resetRecentInfoLoss();
         this.showInfoLoss = showInfoLoss;
         this.suppressStrategy = suppressStrategy;
 
